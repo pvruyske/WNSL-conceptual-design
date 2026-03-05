@@ -1,7 +1,8 @@
 # D365FSCM for Winsol: phase II conceptual alignment document (Helios nv pilot)
 
 > **Purpose**  
-> Establish a shared understanding of scope, high‑level solutions, and effort/budget for Phase II of Winsol’s Dynamics 365 journey—focused on configure‑to‑order (CTO/MTO) manufacturing with CPQ/PLM orchestration, MRP adoption, WIP control, and cost transparency. This is a **conceptual alignment** document, not a detailed blueprint.
+> Establish a shared understanding of scope, high‑level solutions, and effort/budget for Phase II of Winsol’s Dynamics 365 journey—focused on configure‑to‑order (CTO/MTO) manufacturing with CPQ/PLM orchestration, MRP adoption, WIP control, and cost transparency. This is a **conceptual alignment** document, not a detailed blueprint.  
+> **Audience**: IT manager, financial controller, and operations manager.
 
 ---
 
@@ -23,8 +24,10 @@ Orchestrate CTO flows across CPQ/PLM/D365/MES, enable MRP for materials, integra
 
 **Budget & timeline (conceptual)**
 
-- **External consulting**: \~€600k
-- **Internal effort**: \~€600k
+- **External consulting**: 
+  - Approx. €600k, emphasizing fit-to-standard design to minimize customizations.
+- **Internal effort**: 
+  - Approx. €600k, focusing on process ownership and data preparation.
 - **Target go‑live window**: September (seasonality‑aware), pilot Helios first, subsequent roll‑outs with minor adjustments.
 
 ---
@@ -85,6 +88,8 @@ Orchestrate CTO flows across CPQ/PLM/D365/MES, enable MRP for materials, integra
   5. **Lifecycle state** on item/variant controls inclusion in **MRP**.
 - **Design principle**: D365 **consumes completeness**, does not create it.
 
+> **Visual Aid**: Refer to the attached diagram illustrating the sales order entry to production and pick/pack process.
+
 ### 4.2 product definition & readiness gating
 
 - **Always PLM‑provided** **BOM and route** for MTO lines (no fallback to route templates in D365 for MTO).
@@ -128,25 +133,102 @@ Orchestrate CTO flows across CPQ/PLM/D365/MES, enable MRP for materials, integra
 
 > We align with the Microsoft end‑to‑end processes where relevant—without forcing theory over Winsol’s architecture.
 
-### 5.1 plan to produce (core)
-
-- **In scope**: material requirements planning, pegging, production orders, MES actuals integration.
-- **Handled externally**: finite capacity scheduling and detailed dispatching (with bulk date feedback to D365).
-
-### 5.2 order to cash (ERP touchpoints only)
-
-- **In scope**: receipt of confirmed orders from CPQ/PLM, readiness gating, production costing, invoicing.
-- **Handled externally**: quotations and sales configuration (CPQ is lead).
-
-### 5.3 acquire to dispose (procure‑to‑pay focus)
-
-- **In scope**: purchase requisitions/orders for MTO components, receipt, invoice matching, price variances.
-- **Extensions**: “CPQ for purchase” concept (interface, Power App, and/or policy‑based variance handling).
-
-### 5.4 record to report
-
-- **In scope**: WIP valuation (preferred by stage), post‑calculation, variances, month‑end playbook.
-- **Objective**: reduce manual effort, increase reliability and speed at period close.
+| End to end | Process area | In scope | Master system |
+| :--- | :--- | :--- | :--- |
+| Acquire to dispose | Define asset strategy | | |
+| | Acquire assets | | |
+| | Manage active assets | | |
+| | Perform asset maintenance | | |
+| | Dispose of assets | | |
+| | Analyze assets | | |
+| Case to resolution | Establish a knowledge base | | |
+| | Define customer and employee service operations | | |
+| | Intake cases | | |
+| | Manage and work on cases | | |
+| | Analyze case performance | | |
+| Concept to market | Develop marketing strategy | | |
+| | Research and develop offerings | | |
+| | Manage service offerings | | |
+| | Prepare marketing campaigns | | |
+| | Manage marketing campaigns | | |
+| | Analyze marketing operations | | |
+| Design to retire | Develop product strategy | | |
+| | Introduce products | | |
+| | Manage active products | | |
+| | Retire products | | |
+| | Analyze product performance | | |
+| Forecast to plan | Develop business strategy | | |
+| | Conduct sales and operations planning | | |
+| | Execute sales and operations | | |
+| | Conduct financial planning | | |
+| | Analyze business performance | | |
+| Hire to retire | Develop people strategy | | |
+| | Recruit and onboard talent | | |
+| | Manage workplace compliance | | |
+| | Manage performance and growth | | |
+| | Manage time and attendance | | |
+| | Manage compensation and benefits | | |
+| | Offboard talent | | |
+| | Analyze HR programs | | |
+| Inventory to deliver | Manage warehouse operations | | |
+| | Maintain inventory levels | | |
+| | Process inbound goods | | |
+| | Process outbound goods | | |
+| | Manage inventory quality | | |
+| | Manage freight and transportation | | |
+| | Analyze warehouse operations | | |
+| Order to cash | Develop sales policies | | |
+| | Manage sales orders | | |
+| | Manage accounts receivable | | |
+| | Manage credit and collections | | |
+| | Analyze sales performance | | |
+| Plan to produce | Develop production strategies | | |
+| | Plan production operations | | |
+| | Run production operations | | |
+| | Control production quality | | |
+| | Analyze production operations | | |
+| Source to pay | Develop procurement and sourcing strategy | | |
+| | Manage supplier relationships | | |
+| | Source and contract goods and services | | |
+| | Procure goods and services | | |
+| | Manage accounts payable | | |
+| | Analyze procurement and sourcing | | |
+| Project to profit | Develop project strategy | | |
+| | Manage project contracts | | |
+| | Plan projects | | |
+| | Manage project delivery | | |
+| | Manage project financials | | |
+| | Analyze project performance | | |
+| Prospect to quote | Manage customer relationships | | |
+| | Identify and qualify leads | | |
+| | Define sales strategy and policies | | |
+| | Pursue opportunities | | |
+| | Estimate and quote sales | | |
+| | Analyze sales | | |
+| Record to report | Define accounting policies | | |
+| | Manage cash | | |
+| | Manage budgets | | |
+| | Record financial transactions | | |
+| | Close financial periods | | |
+| | Analyze financial performance | | |
+| Service to deliver | Develop service strategy | | |
+| | Plan service work | | |
+| | Manage service work | | |
+| | Deliver services | | |
+| | Analyze service performance | | |
+| Administer to operate | Implement solutions | | |
+| | Define business continuity plan | | |
+| | Manage licensing and entitlements | | |
+| | Administer system features | | |
+| | Manage system access and security | | |
+| | Train users and increase adoption | | |
+| | Monitor systems, environments, and capacity | | |
+| | Manage background jobs | | |
+| | Manage notifications alerts | | |
+| | Uptake software releases | | |
+| | Manage data | | |
+| | Manage system compliance | | |
+| | Support systems | | |
 
 > Each subsection will be elaborated in blueprint with detailed parameters, entities, and integration contracts where needed.
 
@@ -214,14 +296,14 @@ Orchestrate CTO flows across CPQ/PLM/D365/MES, enable MRP for materials, integra
 
 **Budget (conceptual ranges)**
 
-- **External consulting**: \~€600k
+- **External consulting**: 
   - Core D365 (SCM/Production/Planning): 25–30%
   - Integrations (CPQ/PLM/MES + readiness gating): 30–35%
   - Procurement enhancements (“CPQ for purchase” options exploration & minimal viable rollout): 10–15%
   - Costing/WIP & post‑calculation: 10–15%
   - Data migration (open transactions), testing, and training: 10–15%
   - PMO & change: 5–10%
-- **Internal effort**: \~€600k
+- **Internal effort**: 
   - Process ownership, data preparation, UAT, cut‑over support, MES and supplier collaboration.
 
 **Timeline toward September go‑live (illustrative)**
@@ -259,6 +341,8 @@ Orchestrate CTO flows across CPQ/PLM/D365/MES, enable MRP for materials, integra
 
 ## 11. open decisions to be taken in blueprint
 
+> **Expanded to include all pending decisions for comprehensive visibility.**
+
 1. **Quotations & confirmations**: fully CPQ vs partial D365 involvement.
 2. **Rework handling**: separate routing operations vs scrap + extra time.
 3. **WIP valuation granularity**: by stage vs single WIP account.
@@ -266,6 +350,7 @@ Orchestrate CTO flows across CPQ/PLM/D365/MES, enable MRP for materials, integra
 5. **Purchasing configuration approach**: supplier interface vs internal Power App vs variance policy (or a hybrid roadmap).
 6. **Bulk date updates**: mechanism and frequency for external scheduling feedback to D365.
 7. **Financial dimension defaults**: automate “order reference” defaults (pegging‑aware) to remove manual effort.
+8. **MES integration discipline**: ensure timely and accurate posting of actuals.
 
 ---
 
