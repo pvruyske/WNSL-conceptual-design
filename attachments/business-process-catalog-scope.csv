@@ -1,0 +1,110 @@
+﻿BPC level;Level 1;Level 2;In scope;Master system
+End to end;Acquire to dispose;;No;
+Process area;;Define asset strategy;No;
+Process area;;Acquire assets;No;
+Process area;;Manage active assets;No;
+Process area;;Perform asset maintenance;No;
+Process area;;Dispose of assets;No;
+Process area;;Analyze assets;No;
+End to end;Case to resolution;;No;
+Process area;;Establish a kNowledge base;No;
+Process area;;Define customer and employee service operations;No;
+Process area;;Intake cases;No;
+Process area;;Manage and work on cases;No;
+Process area;;Analyze case performance;No;
+End to end;Concept to market;;No;
+Process area;;Develop marketing strategy;No;
+Process area;;Research and develop offerings;No;
+Process area;;Manage service offerings;No;
+Process area;;Prepare marketing campaigns;No;
+Process area;;Manage marketing campaigns;No;
+Process area;;Analyze marketing operations;No;
+End to end;Design to retire;;Yes;PLM
+Process area;;Develop product strategy;No;
+Process area;;Introduce products;Yes;
+Process area;;Manage active products;Yes;
+Process area;;Retire products;Yes;
+Process area;;Analyze product performance;No;
+End to end;Forecast to plan;;Yes;ERP
+Process area;;Develop business strategy;TBD;
+Process area;;Conduct sales and operations planning;Yes;
+Process area;;Execute sales and operations;Yes;
+Process area;;Conduct financial planning;TBD;
+Process area;;Analyze business performance;No;
+End to end;Hire to retire;;No;
+Process area;;Develop people strategy;No;
+Process area;;Recruit and onboard talent;No;
+Process area;;Manage workplace compliance;No;
+Process area;;Manage performance and growth;No;
+Process area;;Manage time and attendance;No;
+Process area;;Manage compensation and benefits;No;
+Process area;;Offboard talent;No;
+Process area;;Analyze HR programs;No;
+End to end;Inventory to deliver;;Yes;ERP
+Process area;;Manage warehouse operations;Yes;ERP
+Process area;;Maintain inventory levels;Yes;ERP
+Process area;;Process inbound goods;Yes;ERP
+Process area;;Process outbound goods;Yes;ERP
+Process area;;Manage inventory quality;TBD;
+Process area;;Manage freight and transportation;TBD;
+Process area;;Analyze warehouse operations;Yes;ERP
+End to end;Order to cash;;Yes;ERP
+Process area;;Develop sales policies;No;
+Process area;;Manage sales orders;Yes;ERP
+Process area;;Manage accounts receivable;Yes;ERP
+Process area;;Manage credit and collections;Yes;ERP
+Process area;;Analyze sales performance;Yes;ERP
+End to end;Plan to produce;;Yes;ERP
+Process area;;Develop production strategies;Yes;ERP
+Process area;;Plan production operations;Yes;ERP
+Process area;;Run production operations;Yes;MES
+Process area;;Control production quality;TBD;MES
+Process area;;Analyze production operations;Yes;ERP
+End to end;Source to pay;;Yes;ERP
+Process area;;Develop procurement and sourcing strategy;Yes;
+Process area;;Manage supplier relationships;Yes;
+Process area;;Source and contract goods and services;Yes;
+Process area;;Procure goods and services;Yes;
+Process area;;Manage accounts payable;Yes;
+Process area;;Analyze procurement and sourcing;Yes;
+End to end;Project to profit;;Yes;
+Process area;;Develop project strategy;TBD;
+Process area;;Manage project contracts;TBD;
+Process area;;Plan projects;TBD;
+Process area;;Manage project delivery;TBD;
+Process area;;Manage project financials;TBD;
+Process area;;Analyze project performance;TBD;
+End to end;Prospect to quote;;TBD;
+Process area;;Manage customer relationships;TBD;
+Process area;;Identify and qualify leads;TBD;
+Process area;;Define sales strategy and policies;TBD;
+Process area;;Pursue opportunities;TBD;
+Process area;;Estimate and quote sales;TBD;
+Process area;;Analyze sales;TBD;
+End to end;Record to report;;Yes;ERP
+Process area;;Define accounting policies;Yes;
+Process area;;Manage cash;Yes;
+Process area;;Manage budgets;Yes;
+Process area;;Record financial transactions;Yes;
+Process area;;Close financial periods;Yes;
+Process area;;Analyze financial performance;Yes;
+End to end;Service to deliver;;No;
+Process area;;Develop service strategy;No;
+Process area;;Plan service work;No;
+Process area;;Manage service work;No;
+Process area;;Deliver services;No;
+Process area;;Analyze service performance;No;
+End to end;Administer to operate;;No;
+Process area;;Implement solutions;No;
+Process area;;Define business continuity plan;No;
+Process area;;Manage licensing and entitlements;No;
+Process area;;Administer system features;No;
+Process area;;Manage system access and security;No;
+Process area;;Train users and increase adoption;No;
+Process area;;Monitor systems, environments, and capacity;No;
+Process area;;Manage background jobs;No;
+Process area;;Manage Notifications alerts;No;
+Process area;;Uptake software releases;No;
+Process area;;Manage data;No;
+Process area;;Manage system compliance;No;
+Process area;;Support systems;No;
