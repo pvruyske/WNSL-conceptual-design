@@ -39,6 +39,7 @@ Phase I of the D365 FSCM implementation delivered the following capabilities for
 - Finance (general ledger, accounts payable, accounts receivable, cash management)
 - Procurement (purchase orders, vendor management, three-way match)
 - **D365 WMS app**: used for purchase order receipts and movement journals; the financial dimension *project* can be specified from within the WMS app to track component consumptions per customer project
+- **MRP — min/max replenishment**: Planning Optimization is active for a limited set of standard items (fasteners, packaging materials, powder coatings), using minimum/maximum stock levels to drive purchase order suggestions
 
 **Phase II** extends the implementation to cover:
 
@@ -52,10 +53,12 @@ Phase I of the D365 FSCM implementation delivered the following capabilities for
 
 ### 1.3 Legal entities in scope
 
-| Legal entity | Location | Role in Phase II |
-|---|---|---|
-| Helios nv | Aalter, Belgium | Pilot — full Phase II scope |
-| [Other entities] | TBD | Roll-out based on Helios template |
+All Winsol group legal entities are already active in D365 for Finance and Procurement (Phase I). Phase II adds manufacturing scope, piloted at Helios nv.
+
+| Legal entity | Location | D365 Phase I status | Role in Phase II |
+|---|---|---|---|
+| Helios nv (HLS) | Aalter, Belgium | Finance, Procurement, and WMS app live | Pilot — full Phase II manufacturing scope |
+| All other group entities (WBL, ACT, WNV, IND, SFO, INT, GRP) | Belgium / France | Finance and Procurement live | Phase II manufacturing roll-out post-Helios pilot; template reuse expected |
 
 ---
 
@@ -67,11 +70,13 @@ Winsol operates a multi-system landscape. Each system has a clearly defined doma
 
 | Type | Owner domain | As-is system | To-be system | Role in Winsol's landscape |
 |---|---|---|---|---|
-| **CPQ** | Sales configuration, pricing | [*system name TBD*] | [*system name TBD*] | Quote & order confirmation; defines what the customer buys |
-| **PLM** | Product definition | [*system name TBD*] | [*system name TBD*] | Creates unique item variants, order-specific BOMs and routes for MTO lines |
+| **CPQ** | Sales configuration, pricing | WinCal / WinsolCom / Chacal / Tekla | WinCal / WinsolCom / Chacal / Tekla *(no replacement planned)* | Quote & order confirmation; defines what the customer buys. Multiple tools serve different product lines: WinCal (awnings, shutters, garage doors), WinsolCom (windows & doors), Chacal (project quotes and windows/doors CTO), Tekla (balustrade projects). |
+| **CTO / product definition** | Product definition, configure-to-order | AS/400 / XLS / Chacal *(custom CTO toolset)* | Evolved CTO platform *(to-be; system name TBD)* | Translates CPQ-confirmed orders into unique item variants, order-specific BOMs, and production instructions; pushes these to D365 |
 | **ERP** | Planning, production control, procurement, inventory, costing, WIP, financials | AS/400 | D365 FSCM | Operational and financial backbone |
 | **MES** | Shop floor execution | [*system name TBD*] | [*system name TBD*] | Records actuals: operation time, material consumption, output, scrap |
 | **BI / Reporting** | Analytics and reporting | [*system name TBD*] | [*system name TBD*] | Cross-system reporting; financial dimensions strategy feeds this |
+
+> **Note on "PLM" terminology** — Throughout this document, the label *PLM* is used as a shorthand for the to-be product definition and CTO layer. This does not imply adoption of a commercial PLM platform; it refers to the planned evolution of Winsol's existing custom CTO toolset (AS/400, XLS, Chacal) into an integrated system that delivers complete item variants, BOMs, and routes to D365. The chosen architecture and tooling for this layer will be confirmed during blueprint.
 
 ### 2.2 High-level architecture
 
@@ -205,7 +210,7 @@ The table below maps all Microsoft Business Process Catalog (BPC) Level 1 and Le
 
 The following items are explicitly excluded from Phase II. They are listed here to prevent scope creep and manage stakeholder expectations:
 
-- **Project Operations**: no project-based costing or billing. Financial dimensions (e.g., order reference) are used for project-level visibility in BI.
+- **Project Operations**: no project-based costing or billing. Financial dimensions (e.g., WinsolSalesReference) are used for project-level visibility in BI.
 - **CRM / Prospect to quote**: customer relationship management and opportunity tracking remain outside D365; CPQ is the lead system for quoting.
 - **Product configurator inside D365**: all configuration logic resides in CPQ. D365 consumes confirmed, fully specified orders.
 - **Advanced APS / detailed scheduling**: capacity planning and detailed finite scheduling are handled by an external tool, not D365.
@@ -269,7 +274,7 @@ The target design provides **WIP visibility by stage** (materials issued, labor 
 
 Financial dimensions are used to provide business-level reporting visibility without requiring Project Operations. Key dimensions:
 
-- **Order reference** (linked to sales order / production order): enables margin tracking per configured order; must be **defaulted automatically** via integration or D365 logic, not entered manually.
+- **WinsolSalesReference** (financial dimension already established in Phase I, linked to the sales order and flowing through to production order and financial postings): enables margin tracking per configured order; must be **defaulted automatically** via integration or D365 logic, not entered manually. Automated defaulting to production and costing flows is a Phase II build requirement.
 - Additional dimensions (e.g., site, product family) to be confirmed in blueprint.
 
 Manual entry of financial dimensions is to be minimized; automation of defaults is a design requirement.
@@ -356,13 +361,16 @@ Key pain points:
 
 ### 6.1 Winsol context & challenges
 
-Winsol currently operates without MRP (legacy AS/400 system). Material planning is largely manual, resulting in:
+D365 Planning Optimization is already active in a limited capacity from Phase I: minimum/maximum stock level rules drive purchase order suggestions for a small set of standard replenishment items (fasteners, packaging materials, powder coatings). This scope is deliberately narrow and does not cover MTO-driven demand.
 
-- Limited forward visibility on material requirements.
+For the broader material planning landscape, planning remains largely manual or handled outside D365, resulting in:
+
+- Limited forward visibility on material requirements for configured MTO items.
 - Reactive purchasing, especially for long-lead MTO-purchased items (e.g., glass).
-- No systematic link between customer order intake and material demand.
+- No systematic link between customer order intake and material demand in D365.
+- Aluminum profiles (ALU) are replenished via a separate XLS-based forecast entirely outside D365 MRP; whether to incorporate ALU into D365 MRP in Phase II is a blueprint decision (see D-FTP-04).
 
-Phase II introduces MRP in D365 as the primary mechanism for material supply planning. Capacity planning remains outside D365.
+Phase II extends MRP to **BOM-exploded, production-order-driven material requirements planning**, linking confirmed sales order demand directly to material supply. Capacity planning remains outside D365.
 
 ### 6.2 Process scope
 
@@ -389,6 +397,7 @@ Phase II introduces MRP in D365 as the primary mechanism for material supply pla
 | D-FTP-01 | Depth of S&OP process: demand forecast vs. pure SO-driven MRP | Open — TBD blueprint |
 | D-FTP-02 | Mechanism for bulk date updates from external scheduler to D365 | Open |
 | D-FTP-03 | Financial planning scope (budgeting module) | Open — TBD blueprint |
+| D-FTP-04 | Aluminum (ALU) replenishment strategy: integrate into D365 MRP or retain separate XLS-based forecast | Open — TBD blueprint |
 
 ### 6.5 Integration touchpoints
 
@@ -491,7 +500,7 @@ A staged approach is recommended: start with **Option C** as minimum viable impl
 
 ### 9.1 Winsol context & challenges
 
-This is the core of Phase II. Winsol currently operates without a formal production control system; planning and shop floor execution rely on the legacy AS/400 and ad-hoc processes. Phase II introduces:
+This is the core of Phase II. Winsol currently operates without a formal production control system; planning and shop floor execution rely on the legacy AS/400 and ad-hoc processes. The current D365 implementation includes the **9A Advanced Manufacturing ISV**; the intent for Phase II is to render this ISV obsolete by replacing its functionality with standard D365 production control (see D-PTP-06). Phase II introduces:
 
 - D365 discrete production orders, generated from MRP.
 - MES integration for all execution actuals.
@@ -533,6 +542,7 @@ Key challenges:
 | D-PTP-03 | Month-end cut-off policy: continuous vs. defined cut-off windows | Open |
 | D-PTP-04 | Production quality control model (in or out of D365) | Open — TBD blueprint |
 | D-PTP-05 | Overhead absorption model (cost categories, overhead rates) | Open |
+| D-PTP-06 | 9A Advanced Manufacturing ISV: replace with standard D365 production control or retain | Open — to be confirmed in blueprint |
 
 ### 9.5 Integration touchpoints
 
@@ -549,6 +559,8 @@ Key challenges:
 ### 10.1 Winsol context & challenges
 
 The D365 WMS app was introduced in Phase I for two purposes: processing **purchase order receipts** and registering **movement journals** (component consumptions), with the financial dimension *project* specifiable from within the mobile app to maintain cost tracking per customer project.
+
+A significant operational limitation today is that material consumption is **not registered live**. Component issues to production are captured through counting journals at monthly intervals, based on physical stock counts. As a result, inventory balances in D365 are unreliable between count cycles, MRP signals are only actionable immediately after a count, and order-level cost visibility depends on the quality of project dimension coding applied at the time of the counting journal. Phase II — through BOM-driven picking and issue transactions triggered by production order execution in MES — resolves this by enabling continuous, live inventory consumption registration.
 
 Phase II builds on this foundation and extends WMS to cover the full manufacturing warehouse flow:
 
@@ -626,7 +638,7 @@ Record to report (R2R) is partially live from Phase I (Finance). Phase II extend
 
 - The general ledger is extended with production cost accounts (WIP accounts by stage, variance accounts, COGS accounts) as part of Phase II configuration.
 - A **month-end playbook** is designed in blueprint: WIP cut-off date, production order status at period end, open PO accruals, variance reconciliation steps.
-- Financial dimensions (order reference + site/product family) enable margin analysis at the sales order line level without Project Operations.
+- Financial dimensions (WinsolSalesReference + site/product family) enable margin analysis at the sales order line level without Project Operations.
 - **Automated financial dimension defaulting** (from sales order → production order → financial posting) is a design requirement; no manual entry.
 
 ### 11.4 Key design decisions
@@ -692,6 +704,8 @@ Prospect to quote is managed by CPQ, which is external to D365. A future CRM int
 
 ## 14. Integration architecture
 
+> **Integration middleware** — Phase I integrations between D365 and the legacy AS/400 were routed through the **Invictus platform** (Codit integration bus). Winsol IT is decommissioning Invictus as part of the move to Phase II. The Phase II integration strategy is **direct interfaces**: source systems will produce messages in a D365-compatible format and deliver them without a centralized middleware layer, to the extent technically feasible. This places message format ownership with individual source system teams and increases the importance of D365-native error visibility and monitoring (see §14.3).
+
 ### 14.1 Interface catalog
 
 The table below provides a consolidated view of all cross-system integration interfaces. This catalog will be elaborated into full interface contracts (message format, frequency, error handling, retry policy) during blueprint.
@@ -739,7 +753,7 @@ Readiness gating prevents incomplete or unvalidated records from triggering down
 | BOMs (MTO) | PLM | Consumer | PLM-provided; validated by readiness gate |
 | Routes (MTO) | PLM | Consumer | PLM-provided; validated by readiness gate |
 | Standard items (non-MTO) | D365 | Owner | Standard D365 item management |
-| Customers | D365 / CRM | Owner | Phase I scope; maintained by commercial team |
+| Customers | AS/400 | Consumer (via integration) | Customer master is maintained in AS/400 and synchronized to D365 via integration; Phase I scope. Migration of ownership to D365 or a future CRM system is a Phase III roadmap item. |
 | Vendors / suppliers | D365 | Owner | Maintained by procurement |
 | Cost prices (MTO items) | D365 | Owner | Calculated from PLM BOM/route; triggered by lifecycle state |
 | Chart of accounts | D365 | Owner | Finance-owned |
@@ -794,7 +808,7 @@ Reporting and analytics in Phase II are focused on enabling the core business ou
 
 Financial dimensions replace the need for Project Operations as the mechanism for profitability tracking. The following principles apply:
 
-- **Order reference dimension**: populated automatically from the sales order line; flows through to the production order and all financial postings. No manual entry.
+- **WinsolSalesReference dimension**: populated automatically from the sales order line; flows through to the production order and all financial postings. No manual entry.
 - **Dimension defaulting logic** is a Phase II build requirement, not a configuration task. The defaulting rules (from sales order line → production order → sub-ledger posting) must be designed and tested as part of the integration and finance workstreams.
 - Additional dimensions (e.g., product family, distribution channel) are to be confirmed during blueprint based on reporting requirements.
 
@@ -895,6 +909,7 @@ No redesign of core D365 configuration or integration interfaces is anticipated 
 | D-FTP-01 | Depth of S&OP process: demand forecast vs. pure SO-driven MRP | §6 Forecast to plan | Open | | |
 | D-FTP-02 | Bulk date update mechanism from external scheduler to D365 | §6 Forecast to plan | Open | | |
 | D-FTP-03 | Financial planning scope (budgeting module) | §6 Forecast to plan | Open | | |
+| D-FTP-04 | Aluminum (ALU) replenishment strategy: integrate into D365 MRP or retain separate XLS-based forecast | §6 Forecast to plan | Open | | |
 | D-OTC-01 | Quotation handling: CPQ-only vs. D365 sales quotation | §7 Order to cash | Open | | |
 | D-OTC-02 | Cooling-off period enforcement mechanism in D365 | §7 Order to cash | Open | | |
 | D-OTC-03 | Financial dimension defaulting on sales order line (automation) | §7 Order to cash | Open | | |
@@ -906,10 +921,11 @@ No redesign of core D365 configuration or integration interfaces is anticipated 
 | D-PTP-03 | Month-end cut-off policy | §9 Plan to produce | Open | | |
 | D-PTP-04 | Production quality control model | §9 Plan to produce | Open | | |
 | D-PTP-05 | Overhead absorption model | §9 Plan to produce | Open | | |
+| D-PTP-06 | 9A Advanced Manufacturing ISV: replace with standard D365 production control or retain | §9 Plan to produce | Open | | |
 | D-ITD-01 | Scope of WMS processes to configure in Phase II (beyond receipt, movement journals, production picking, sales picking) | §10 Inventory to deliver | Open | | |
-| D-ITD-04 | Location directive and put-away strategy for raw materials and finished goods | §10 Inventory to deliver | Open | | |
 | D-ITD-02 | Inventory quality management scope | §10 Inventory to deliver | Open | | |
 | D-ITD-03 | Transportation management scope | §10 Inventory to deliver | Open | | |
+| D-ITD-04 | Location directive and put-away strategy for raw materials and finished goods | §10 Inventory to deliver | Open | | |
 | D-RTR-01 | Chart of accounts extensions for production cost accounts | §11 Record to report | Open | | |
 | D-RTR-02 | Month-end cut-off policy and WIP snapshot approach | §11 Record to report | Open | | |
 | D-RTR-03 | Profitability reporting level | §11 Record to report | Open | | |
@@ -921,3 +937,4 @@ No redesign of core D365 configuration or integration interfaces is anticipated 
 | Version | Date | Author | Description |
 |---|---|---|---|
 | 0.1 | March 11, 2026 | | Initial document skeleton — scope, design principles, architecture, process outlines, budget |
+| 0.2 | March 11, 2026 | | Phase I cross-check: MRP context (§6.1), CPQ toolset names (§2.1), PLM/CTO terminology note (§2.1), legal entity table (§1.3), WinsolSalesReference dimension name throughout, month-end counting pain point (§10.1), customer master ownership (§15.1), Invictus middleware context (§14), 9A ISV decision D-PTP-06, ALU decision D-FTP-04, D-ITD ordering fix in §19 |
