@@ -36,29 +36,29 @@ Key business characteristics relevant to this ERP implementation:
 
 Phase I of the D365 FSCM implementation delivered the following capabilities for the group:
 
-- Finance (general ledger, accounts payable, accounts receivable, cash management)
-- Procurement (purchase orders, vendor management, three-way match)
+- **Finance**: general ledger, accounts payable, accounts receivable, cash management
+- **Procurement**: purchase orders, vendor management, three-way matching
 - **D365 WMS app**: used for purchase order receipts and movement journals; the financial dimension *project* can be specified from within the WMS app to track component consumptions per customer project
 - **MRP — min/max replenishment**: Planning Optimization is active for a limited set of standard items (fasteners, packaging materials, powder coatings), using minimum/maximum stock levels to drive purchase order suggestions
 
 **Phase II** extends the implementation to cover:
 
 - Production control (discrete manufacturing)
-- Materials planning (MRP)
+- Master planning (MRP)
 - Costing model (standard cost + post-calculation)
 - WIP valuation and control
 - Procurement enhancements for MTO-purchased items with late price determination
-- WMS extension: automated work creation for production order picking and sales order picking, plus additional WMS processes to be defined during blueprint
+- Integrated WMS: the D365 WMS app — already live for inbound processes — is extended to cover the full operational warehouse flow: automated picking work for production orders and sales orders, and potentially inbound quality control; additional WMS processes to be scoped during blueprint
 - Integration with CPQ, PLM, and MES
 
 ### 1.3 Legal entities in scope
 
-All Winsol group legal entities are already active in D365 for Finance and Procurement (Phase I). Phase II adds manufacturing scope, piloted at Helios nv.
+All Winsol group legal entities are already active in D365 for finance, procurement and basic WMS (Phase I). Phase II adds manufacturing scope, piloted at Helios nv.
 
 | Legal entity | Location | D365 Phase I status | Role in Phase II |
 |---|---|---|---|
 | Helios nv (HLS) | Aalter, Belgium | Finance, Procurement, and WMS app live | Pilot — full Phase II manufacturing scope |
-| All other group entities (WBL, ACT, WNV, IND, SFO, INT, GRP) | Belgium / France | Finance and Procurement live | Phase II manufacturing roll-out post-Helios pilot; template reuse expected |
+| All other group entities (WBL, ACT, WNV, IND, SFO, INT, GRP) | Belgium / France | Finance, Procurement, and WMS app live | Phase II manufacturing roll-out post-Helios pilot; template reuse expected |
 
 ---
 
@@ -70,8 +70,8 @@ Winsol operates a multi-system landscape. Each system has a clearly defined doma
 
 | Type | Owner domain | As-is system | To-be system | Role in Winsol's landscape |
 |---|---|---|---|---|
-| **CPQ** | Sales configuration, pricing | WinCal / WinsolCom / Chacal / Tekla | WinCal / WinsolCom / Chacal / Tekla *(no replacement planned)* | Quote & order confirmation; defines what the customer buys. Multiple tools serve different product lines: WinCal (awnings, shutters, garage doors), WinsolCom (windows & doors), Chacal (project quotes and windows/doors CTO), Tekla (balustrade projects). |
-| **CTO / product definition** | Product definition, configure-to-order | AS/400 / XLS / Chacal *(custom CTO toolset)* | Evolved CTO platform *(to-be; system name TBD)* | Translates CPQ-confirmed orders into unique item variants, order-specific BOMs, and production instructions; pushes these to D365 |
+| **CPQ** | Sales configuration, pricing | • WinCal (awnings, shutters, garage doors)<br>• WinsolCom (windows & doors)<br>• Chacal (project quotes and windows/doors CTO)<br>• Tekla (balustrade projects) | • WinCal<br>• WinsolCom<br>• Chacal<br>• Tekla<br>*(no replacement planned)* | Quote & order confirmation; defines what the customer buys. Multiple tools serve different product lines. |
+| **CTO / product definition** | Product definition, configure-to-order | • AS/400 (awnings, shutters, garage doors)<br>• XLS (pergolas)<br>• Chacal (windows & doors) | Evolved CTO platform *(to-be; system name TBD)* | Translates CPQ-confirmed orders into unique item variants, order-specific BOMs, and production instructions; pushes these to D365 |
 | **ERP** | Planning, production control, procurement, inventory, costing, WIP, financials | AS/400 | D365 FSCM | Operational and financial backbone |
 | **MES** | Shop floor execution | [*system name TBD*] | [*system name TBD*] | Records actuals: operation time, material consumption, output, scrap |
 | **BI / Reporting** | Analytics and reporting | [*system name TBD*] | [*system name TBD*] | Cross-system reporting; financial dimensions strategy feeds this |
@@ -79,6 +79,12 @@ Winsol operates a multi-system landscape. Each system has a clearly defined doma
 > **Note on "PLM" terminology** — Throughout this document, the label *PLM* is used as a shorthand for the to-be product definition and CTO layer. This does not imply adoption of a commercial PLM platform; it refers to the planned evolution of Winsol's existing custom CTO toolset (AS/400, XLS, Chacal) into an integrated system that delivers complete item variants, BOMs, and routes to D365. The chosen architecture and tooling for this layer will be confirmed during blueprint.
 
 ### 2.2 High-level architecture
+
+**System landscape**
+
+![high-level system architecture](attachments/hl-architecture.svg)
+
+**Detailed process diagram**
 
 > **[Architecture diagram placeholder]**
 > Insert a swimlane or box-and-arrow diagram showing: CPQ → PLM → D365 (order intake, planning, costing) → MES (actuals back to D365), with readiness gating indicated. Source file: `attachments/Winsol conceptual alignment.drawio`.
@@ -214,7 +220,6 @@ The following items are explicitly excluded from Phase II. They are listed here 
 - **CRM / Prospect to quote**: customer relationship management and opportunity tracking remain outside D365; CPQ is the lead system for quoting.
 - **Product configurator inside D365**: all configuration logic resides in CPQ. D365 consumes confirmed, fully specified orders.
 - **Advanced APS / detailed scheduling**: capacity planning and detailed finite scheduling are handled by an external tool, not D365.
-- **Full advanced WMS**: the D365 WMS app is already live (Phase I) and is extended in Phase II. However, advanced WMS features such as license plate-based directed put-away at scale, advanced shipping notifications (ASN), and wave/load management beyond the manufacturing flow are out of scope unless specifically justified during blueprint.
 - **Broad Power BI / analytics program**: targeted financial dimension reporting is in scope; a company-wide analytics program is not.
 
 ### 3.3 TBD items — scope to be confirmed in blueprint
@@ -249,13 +254,14 @@ Item variants and product masters for MTO items are **created and owned by PLM**
 
 > **Decision required**: confirm whether phantom items are used in D365 BOM structures for MES simplification. Current position: phantoms not required. (See Open Decisions Log D-DTR-01.)
 
-### 4.3 Planning philosophy — materials in D365, capacity outside
+### 4.3 Planning philosophy — materials and rough capacity in D365, detailed scheduling outside
 
-MRP in D365 is used exclusively for **material supply planning** (purchase order and production order suggestions). Capacity planning and detailed scheduling are performed in an **external scheduling tool**, which may write planned/scheduled dates back to D365.
+MRP in D365 is used for **material supply planning** (purchase order and production order suggestions) and **rough-cut capacity evaluation** using D365 standard capacity planning functionality. Detailed finite scheduling is performed in an **external scheduling tool**, which writes confirmed scheduled dates back to D365.
 
 - Coverage groups are configured for MTO behavior (single-order explosion, no cross-order material reuse).
 - Pegging is maintained via a planning-relevant **configuration dimension**.
-- Capacity is represented in D365 only at the level needed for realistic lead-time calculation (default operation times on route groups/resources).
+- Capacity is represented in D365 at resource/resource group level with realistic operation times, enabling rough production planning and capacity load evaluation within D365 standard.
+- Whether D365 standard capacity planning is sufficient for Winsol's planning needs, or whether the external scheduler is required from the outset, is confirmed during blueprint (see Open Decisions Log D-FTP-02).
 
 ### 4.4 Costing model
 
@@ -318,7 +324,9 @@ Key pain points:
 - No formal engineering change management (ECM) process during active fulfillment; ad-hoc exceptions create noise in D365.
 - Item lifecycle management is not enforced today in D365, which risks orphaned variants polluting plans.
 
-> **Note on D365 Engineering Change Management (ECM) module** — D365 FSCM includes an ECM module with features such as change orders, impact analysis, readiness policies, and product lifecycle state workflows. Full adoption of ECM as a change management process is **unlikely to be appropriate** given that PLM is the system of record for product definition: running parallel change governance in both PLM and D365 creates conflicting ownership and integration complexity. However, two specific ECM capabilities are worth evaluating during blueprint: (1) **readiness policies** — ECM's native readiness check framework could serve as the D365-side implementation of the readiness gate described in section 4.7, potentially replacing a custom write-back integration; and (2) **impact analysis** — ECM can surface open production orders, purchase orders, and sales orders affected by a BOM or route update pushed from PLM, which is operationally valuable in a high-variant CTO environment. See decision D-DTR-04.
+> **Note on D365 Engineering Change Management (ECM) module** — D365 FSCM includes an ECM module with features such as change orders, impact analysis, readiness policies, and product lifecycle state workflows. Full adoption of ECM as a change management process is **unlikely to be appropriate** given that PLM is the system of record for product definition: running parallel change governance in both PLM and D365 creates conflicting ownership and integration complexity. However, two specific ECM capabilities are worth evaluating during blueprint:
+> 1. **Readiness policies**: ECM's native readiness check framework could serve as the D365-side implementation of the readiness gate described in section 4.7, potentially replacing a custom write-back integration;
+> 1. **Impact analysis**: ECM can surface open production orders, purchase orders, and sales orders affected by a BOM or route update pushed from PLM, which is operationally valuable in a high-variant CTO environment. See decision D-DTR-04.
 
 ### 5.2 Process scope
 
@@ -333,7 +341,7 @@ Key pain points:
 ### 5.3 Proposed solution outline
 
 - Item variants and released products are created in D365 via integration with PLM; no manual creation of MTO items in D365.
-- **Item lifecycle states** in D365 are used to control MRP inclusion. An item is planned only when its lifecycle state indicates readiness, as confirmed by an external validation step or — pending blueprint evaluation — via ECM readiness policies natively in D365.
+- **Product lifecycle states** in D365 control which business processes are available for a product — including MRP inclusion, purchase order creation, and other operational transactions. Each lifecycle state can independently enable or block specific D365 processes, making them a flexible readiness gating mechanism. An item is available for a given process only when its lifecycle state permits it, as confirmed by an external validation step or — pending blueprint evaluation — via ECM readiness policies natively in D365.
 - BOM and route versions in D365 are always linked to a PLM-sourced record; version history is traceable.
 - For standard (non-MTO) items, D365-native product management applies.
 - No product configurator in D365.
@@ -361,16 +369,16 @@ Key pain points:
 
 ### 6.1 Winsol context & challenges
 
-D365 Planning Optimization is already active in a limited capacity from Phase I: minimum/maximum stock level rules drive purchase order suggestions for a small set of standard replenishment items (fasteners, packaging materials, powder coatings). This scope is deliberately narrow and does not cover MTO-driven demand.
+D365 master planning is already active with a limited scope from Phase I: minimum/maximum stock level rules drive purchase order suggestions for a small set of standard replenishment items (fasteners, packaging materials, powder coatings). This scope is deliberately narrow and does not cover MTO-driven demand.
 
 For the broader material planning landscape, planning remains largely manual or handled outside D365, resulting in:
 
 - Limited forward visibility on material requirements for configured MTO items.
 - Reactive purchasing, especially for long-lead MTO-purchased items (e.g., glass).
 - No systematic link between customer order intake and material demand in D365.
-- Aluminum profiles (ALU) are replenished via a separate XLS-based forecast entirely outside D365 MRP; whether to incorporate ALU into D365 MRP in Phase II is a blueprint decision (see D-FTP-04).
+- Aluminum profiles are replenished via a separate XLS-based forecast entirely outside D365 MRP; whether to incorporate ALU into D365 MRP in Phase II is a blueprint decision (see D-FTP-04).
 
-Phase II extends MRP to **BOM-exploded, production-order-driven material requirements planning**, linking confirmed sales order demand directly to material supply. Capacity planning remains outside D365.
+Phase II extends MRP to **BOM-exploded, production-order-driven material requirements planning**, linking confirmed sales order demand directly to material supply. Detailed capacity planning remains outside D365.
 
 ### 6.2 Process scope
 
@@ -403,7 +411,7 @@ Phase II extends MRP to **BOM-exploded, production-order-driven material require
 
 | Interface | Direction | Trigger | Data |
 |---|---|---|---|
-| CPQ / PLM → D365 | Inbound | Order confirmation | Sales order lines (trigger MRP demand) |
+| CPQ / PLM → D365 | Inbound | Order confirmation | Sales order header and lines (trigger MRP demand) |
 | External scheduler → D365 | Inbound | Scheduling run | Planned/scheduled dates for production orders |
 
 ---
@@ -473,7 +481,7 @@ Three solution options for MTO purchase pricing are under evaluation. The prefer
 | Option | Description | Complexity | Fit |
 |---|---|---|---|
 | **A — Supplier configuration interface** | Supplier system returns confirmed specification + price to D365 via integration (EDI/Peppol) | High | Best automation; requires supplier commitment |
-| **B — Internal purchasing configurator (Power App)** | Buyer specifies structured purchase spec in a Power App; supplier confirms via EDI/Peppol with final price | Medium | Pragmatic; internal control |
+| **B — Internal purchasing configurator** | Buyer specifies structured purchase spec in a dedicated application; supplier confirms via EDI/Peppol with final price | Medium | Pragmatic; internal control |
 | **C — Pricing tolerance policy** | PO raised without final price; price updated after supplier confirmation; automatic price variance posting + approval workflow | Low | Simplest to start; least proactive |
 
 A staged approach is recommended: start with **Option C** as minimum viable implementation, with a roadmap toward Option A or B as supplier and process maturity allows.
@@ -591,7 +599,7 @@ The guiding principle is **progressive adoption**: extend the WMS app that opera
   - Automated **sales order picking work**: work creation triggered by sales order release to warehouse; operators pick and confirm shipment via WMS app.
   - Additional WMS processes (location directives, put-away rules, cycle counting frequency) to be configured during blueprint.
 - **Inventory dimensions**: site, warehouse, location, and configuration dimension for MTO pegging.
-- Advanced WMS features (license plate-based directed put-away at scale, ASN, wave/load management beyond the manufacturing flow) are out of scope unless specifically justified.
+- Advanced WMS features (license plate-based directed put-away at scale, ASN, wave/load management beyond the manufacturing flow) are not explicitly in scope; requirements and fit to be assessed during blueprint.
 
 ### 10.4 Key design decisions
 
@@ -704,7 +712,15 @@ Prospect to quote is managed by CPQ, which is external to D365. A future CRM int
 
 ## 14. Integration architecture
 
-> **Integration middleware** — Phase I integrations between D365 and the legacy AS/400 were routed through the **Invictus platform** (Codit integration bus). Winsol IT is decommissioning Invictus as part of the move to Phase II. The Phase II integration strategy is **direct interfaces**: source systems will produce messages in a D365-compatible format and deliver them without a centralized middleware layer, to the extent technically feasible. This places message format ownership with individual source system teams and increases the importance of D365-native error visibility and monitoring (see §14.3).
+> **Integration middleware and framework** — Phase I integrations between D365 and the legacy AS/400 were routed through the **Invictus platform** (Codit integration bus). Winsol IT is decommissioning Invictus as part of the move to Phase II. For Phase I D365 integrations, a **9altitudes ISV solution** is currently in place as the interfacing framework within D365.
+>
+> For Phase II, the integration framework decision is **open** (see D-ITF-01). Three options are under consideration:
+>
+> 1. **Retain the 9altitudes ISV** — continue with the existing ISV framework, extended to cover Phase II interfaces.
+> 2. **delaware interface framework** — adopt the delaware-provided integration framework, which offers pre-built connectors and a standardised message handling layer for D365 FSCM.
+> 3. **Custom framework + standard D365 APIs** — build a lightweight custom framework on top of standard D365 integration endpoints. Microsoft provides standard API endpoints for certain integration scenarios (e.g., MES integration via the Production Floor Execution interfaces and Data Management framework); these can be combined with custom orchestration for interfaces where no standard endpoint exists.
+>
+> Regardless of the chosen framework, the design principles in §14.3 apply: idempotency, D365-native error visibility, and functional status indicators rather than technical-only logs.
 
 ### 14.1 Interface catalog
 
@@ -720,17 +736,7 @@ The table below provides a consolidated view of all cross-system integration int
 | I-06 | External scheduler | D365 | Scheduling run | Planned/scheduled dates for production orders (bulk update) | Batch | TBD |
 | I-07 | Supplier (Option A/B) | D365 | Supplier configuration confirmation | Confirmed price, item specification | Event-driven | TBD |
 
-### 14.2 Readiness gating design
-
-Readiness gating prevents incomplete or unvalidated records from triggering downstream D365 processes (MRP, production order creation). The gating mechanism operates as follows:
-
-1. PLM creates item variant + BOM + route → pushes to D365.
-2. External validation framework checks completeness and consistency.
-3. Validation result is written back to D365 as an **item lifecycle state** (e.g., "Draft", "Ready for planning").
-4. D365 MRP coverage filter excludes items with lifecycle states below "Ready for planning".
-5. Sales order lines referencing non-ready items are flagged; a status field on the sales order line reflects the readiness state for visibility to order management.
-
-### 14.3 Error handling and monitoring principles
+### 14.2 Error handling and monitoring principles
 
 - All integration interfaces implement an acknowledgment / status write-back visible in D365 — not only in the middleware log.
 - Reprocessing of failed messages must be possible without side effects (idempotent design).
@@ -753,7 +759,7 @@ Readiness gating prevents incomplete or unvalidated records from triggering down
 | BOMs (MTO) | PLM | Consumer | PLM-provided; validated by readiness gate |
 | Routes (MTO) | PLM | Consumer | PLM-provided; validated by readiness gate |
 | Standard items (non-MTO) | D365 | Owner | Standard D365 item management |
-| Customers | AS/400 | Consumer (via integration) | Customer master is maintained in AS/400 and synchronized to D365 via integration; Phase I scope. Migration of ownership to D365 or a future CRM system is a Phase III roadmap item. |
+| Customers | TBD | Consumer (via integration) | Customer master is synchronized to D365 via integration. Migration of ownership to D365 or a future CRM system is a Phase III roadmap item. |
 | Vendors / suppliers | D365 | Owner | Maintained by procurement |
 | Cost prices (MTO items) | D365 | Owner | Calculated from PLM BOM/route; triggered by lifecycle state |
 | Chart of accounts | D365 | Owner | Finance-owned |
@@ -929,6 +935,7 @@ No redesign of core D365 configuration or integration interfaces is anticipated 
 | D-RTR-01 | Chart of accounts extensions for production cost accounts | §11 Record to report | Open | | |
 | D-RTR-02 | Month-end cut-off policy and WIP snapshot approach | §11 Record to report | Open | | |
 | D-RTR-03 | Profitability reporting level | §11 Record to report | Open | | |
+| D-ITF-01 | Phase II integration framework: retain 9altitudes ISV / adopt delaware interface framework / custom framework + standard D365 APIs | §14 Integration architecture | Open | | |
 
 ---
 
