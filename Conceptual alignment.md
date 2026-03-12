@@ -820,83 +820,19 @@ Financial dimensions replace the need for Project Operations as the mechanism fo
 
 ---
 
-## 17. Budget
+## 17 & 18. Budget and implementation approach
 
-### 17.1 Budget envelope
-
-The following budget envelope is used as the planning baseline for Phase II. Detailed estimates will be validated and refined after the blueprint phase.
-
-| | Envelope | Notes |
-|---|---|---|
-| **External consulting** | approx. €600,000 | Fit-to-standard design; minimizes customization cost |
-| **Internal effort (Winsol)** | approx. €600,000 | Process ownership, data preparation, UAT, cut-over support |
-| **Total** | approx. €1,200,000 | |
-
-### 17.2 External consulting — breakdown by workstream
-
-| Workstream | Indicative share | Notes |
-|---|---|---|
-| Core D365 SCM / Production / Planning | 25–30% | Base configuration, production control, MRP, costing |
-| Integrations (CPQ / PLM / MES + readiness gating) | 30–35% | Largest effort driver; complexity depends on interface maturity |
-| Procurement enhancements (MTO purchase pricing) | 10–15% | Depends on Option A/B/C selection |
-| Costing, WIP & post-calculation | 10–15% | |
-| Data migration, testing & training | 10–15% | |
-| PMO & change management | 5–10% | |
-
-### 17.3 Internal effort — breakdown by activity
-
-| Activity | Notes |
-|---|---|
-| Process ownership and decision-making | Required throughout blueprint and build phases |
-| Master data preparation | Item master cleansing, cost price data, work center alignment |
-| User acceptance testing (UAT) | Led by process owners; consulting support |
-| Cut-over planning and execution | Production order status at go-live, WIP cut-over, open transaction migration |
-| MES and supplier collaboration | Interface testing, MES posting discipline training |
-| Change management and user adoption | Planner, buyer, finance, and production lead enablement |
-
-### 17.4 Budget assumptions
-
-The budget envelope is based on the following assumptions:
-
-1. PLM delivers complete BOMs and routes for all MTO lines before go-live.
-2. MES posts all actuals; D365 performs no backflushing.
-3. CPQ remains the lead for quotes, configuration, and pricing; D365 receives confirmed orders only.
-4. Lifecycle state / readiness gating is technically enforceable across all systems.
-5. The selected procurement solution (Option A/B/C) does not require a large supplier-side integration program in Phase II.
-6. Helios nv entity configuration complexity is representative of other Winsol legal entities for rollout purposes.
-7. No major D365 platform upgrades or Microsoft release changes disrupt the build schedule.
-
----
-
-## 18. Implementation approach & timeline
-
-### 18.1 Methodology
-
-- **Fit-to-standard first**: design follows D365 standard processes; customization only where cross-entity reusable and high ROI.
-- **Blueprint before build**: all open decisions (see Section 19) are resolved during blueprint before build commences.
-- **Pilot at Helios nv**: full Phase II scope implemented and validated at Helios; design artifacts serve as the rollout template.
-- **Seasonality-aware go-live**: target go-live in September, ahead of the next peak demand season.
-
-### 18.2 Phase timeline (indicative)
-
-| Phase | Duration | Key outputs |
-|---|---|---|
-| Blueprint & architecture | 6–8 weeks | All open decisions resolved; detailed design per E2E; interface contracts; updated budget |
-| Build & integrations | 12–16 weeks | D365 configuration, integration build, unit testing |
-| Validation (SIT / UAT) & training | 8–10 weeks | System integration testing, user acceptance testing, training delivery |
-| Cut-over & go-live preparation | 2–3 weeks | Data migration, cut-over rehearsals, go-live sign-off |
-
-> Phases overlap. A detailed project plan with milestones and resource loading will be produced post-blueprint.
-
-### 18.3 Rollout after Helios pilot
-
-After Helios go-live, subsequent legal entity rollouts are expected to require:
-
-- Legal entity-specific configuration (company accounts, legal settings, local tax).
-- Data migration for the new entity.
-- Targeted regression testing.
-
-No redesign of core D365 configuration or integration interfaces is anticipated for rollouts, provided the pilot is clean.
+> Budget and delivery planning are covered in a dedicated companion document targeted at management and project governance:
+>
+> **[Budget and planning.md](Budget%20and%20planning.md)**
+>
+> That document contains:
+> - The PROMAR delivery framework and current project stage
+> - Blueprint phase scope, consulting day budget, and quality gate criteria
+> - Full project consulting day matrix (phase × workstream) through go-live September 2027
+> - Detailed project timeline with PROMAR quality gates and key milestones
+> - Realization sprint breakdown
+> - Budget assumptions and rollout approach
 
 ---
 
